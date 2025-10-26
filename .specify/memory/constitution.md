@@ -1,50 +1,32 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: none → 1.0.0
+- Modified principles:
+  - [PRINCIPLE_1_NAME] → I. Intuitive AI-Powered Frontend
+  - [PRINCIPLE_2_NAME] → II. Rigorous Mathematical & Economic Modeling
+  - [PRINCIPLE_3_NAME] → III. Modular & Composable Architecture
+- Added sections: Core Principles, Governance
+- Removed sections: [PRINCIPLE_4_NAME], [PRINCIPLE_5_NAME], [SECTION_2_NAME], [SECTION_3_NAME]
+- Templates requiring updates:
+  - .specify/templates/plan-template.md (✅ updated - no changes needed, dynamic)
+  - .specify/templates/spec-template.md (✅ updated - no changes needed)
+  - .specify/templates/tasks-template.md (✅ updated - no changes needed)
+- Follow-up TODOs: none
+-->
+# OptiMeal Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Intuitive AI-Powered Frontend
+The user interface will be designed to be highly intuitive and user-friendly, leveraging AI agents and advanced text processing to simplify user interactions and reduce cognitive load. A seamless and simple user experience is critical for user adoption and retention. By using AI to abstract away complexity, we can make powerful features accessible to a broader audience.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Rigorous Mathematical & Economic Modeling
+The core optimization engine will be built upon a strong foundation of mathematical and economic theory. All optimization algorithms must be well-researched, documented, and validated. The unique value proposition of OptiMeal is its ability to provide mathematically optimal meal plans, which requires a rigorous and defensible approach to modeling to ensure the recommendations are accurate and trustworthy.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
-
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
-
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
-
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
-
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### III. Modular & Composable Architecture
+The system will be designed with a modular architecture, where each component (e.g., frontend, optimization engine, data processing) can operate independently but also communicate effectively with other components. The user experience should allow for toggling the integration of these components. A modular architecture promotes scalability, maintainability, and flexibility, allowing for independent development and deployment of components and enabling a more customizable user experience.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution is the single source of truth for project principles. All development, specifications, and plans must align with it. Amendments require team consensus, documentation of the change, and a version bump.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-10-25 | **Last Amended**: 2025-10-25

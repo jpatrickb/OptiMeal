@@ -1,0 +1,17 @@
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+README.md
+DOCKER_SETUP.md
+Makefile
+specs/
+business_plan/
+.specify/
+.claude/
+.gemini/
+CLAUDE.md
+GEMINI.md

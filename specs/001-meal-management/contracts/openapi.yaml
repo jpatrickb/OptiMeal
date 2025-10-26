@@ -1,0 +1,1432 @@
+openapi: 3.0.3
+info:
+  title: OptiMeal API - Meal Management
+  description: |
+    API for the OptiMeal meal management feature (001-meal-management).
+    Provides endpoints for pantry inventory, meal logging, meal planning, feedback collection, and nutritional insights.
+  version: 1.0.0
+  contact:
+    name: OptiMeal Team
+    email: api@optimeal.com
+
+servers:
+  - url: https://api.optimeal.com/v1
+    description: Production server
+  - url: http://localhost:8000/v1
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: User authentication and registration
+  - name: Pantry
+    description: Pantry inventory management (FR-001, FR-002)
+  - name: FoodItems
+    description: User food item templates (FR-005)
+  - name: Meals
+    description: Meal logging and tracking (FR-003, FR-004)
+  - name: Recipes
+    description: Saved meal recipes (FR-013)
+  - name: Plans
+    description: LLM-powered meal planning (FR-006, FR-007, FR-008)
+  - name: Feedback
+    description: User feedback collection (FR-009)
+  - name: Insights
+    description: Nutritional trend visualizations (FR-010, FR-011)
+
+paths:
+  # ===========================
+  # Authentication
+  # ===========================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePass123!
+                full_name:
+                  type: string
+                  example: John Doe
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: JWT access token
+                  token_type:
+                    type: string
+                    example: bearer
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Invalid credentials
+
+  # ===========================
+  # Food Items
+  # ===========================
+  /food-items:
+    get:
+      tags: [FoodItems]
+      summary: List user's food items (FR-005)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search by name or brand
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of food items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FoodItem'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [FoodItems]
+      summary: Create a new food item (FR-005, FR-014, FR-015)
+      description: |
+        Create a food item either manually or from an uploaded nutrition label image.
+        If `nutrition_label_image` is provided, open-source OCR (PaddleOCR + MediaPipe) will parse the image and populate nutritional fields.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FoodItemCreate'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nutrition_label_image:
+                  type: string
+                  format: binary
+                  description: Image of nutrition label for OCR parsing
+                name:
+                  type: string
+                  description: Name of food item (required even with image)
+      responses:
+        '201':
+          description: Food item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /food-items/{food_item_id}:
+    get:
+      tags: [FoodItems]
+      summary: Get food item by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FoodItemId'
+      responses:
+        '200':
+          description: Food item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [FoodItems]
+      summary: Update food item
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FoodItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FoodItemUpdate'
+      responses:
+        '200':
+          description: Food item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [FoodItems]
+      summary: Delete food item
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FoodItemId'
+      responses:
+        '204':
+          description: Food item deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ===========================
+  # Pantry
+  # ===========================
+  /pantry:
+    get:
+      tags: [Pantry]
+      summary: Get user's pantry inventory (FR-001)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: location
+          in: query
+          description: Filter by storage location
+          schema:
+            type: string
+            enum: [Pantry, Fridge, Freezer]
+        - name: expiring_within_days
+          in: query
+          description: Filter items expiring within N days
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pantry items with food details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PantryItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Pantry]
+      summary: Add item to pantry (FR-001)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PantryItemCreate'
+      responses:
+        '201':
+          description: Pantry item added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PantryItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /pantry/{pantry_item_id}:
+    get:
+      tags: [Pantry]
+      summary: Get pantry item by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PantryItemId'
+      responses:
+        '200':
+          description: Pantry item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PantryItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Pantry]
+      summary: Update pantry item (FR-001)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PantryItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PantryItemUpdate'
+      responses:
+        '200':
+          description: Pantry item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PantryItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Pantry]
+      summary: Remove item from pantry (FR-001)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PantryItemId'
+      responses:
+        '204':
+          description: Pantry item removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ===========================
+  # Meals
+  # ===========================
+  /meals:
+    get:
+      tags: [Meals]
+      summary: Get user's meal logs (FR-003)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: meal_type
+          in: query
+          schema:
+            type: string
+            enum: [breakfast, lunch, dinner, snack]
+      responses:
+        '200':
+          description: List of meal logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MealLog'
+
+    post:
+      tags: [Meals]
+      summary: Log a meal (FR-003, FR-004)
+      description: |
+        Log a meal with food items consumed. Automatically decrements pantry quantities.
+        If consuming more than available in pantry, sets pantry to 0 and returns a warning.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealLogCreate'
+      responses:
+        '201':
+          description: Meal logged successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meal:
+                    $ref: '#/components/schemas/MealLog'
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                      - "You've logged more eggs than were in your pantry. We've updated your pantry count to 0."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /meals/{meal_log_id}:
+    get:
+      tags: [Meals]
+      summary: Get meal log by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MealLogId'
+      responses:
+        '200':
+          description: Meal log details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealLog'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Meals]
+      summary: Delete meal log
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MealLogId'
+      responses:
+        '204':
+          description: Meal log deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ===========================
+  # Recipes
+  # ===========================
+  /recipes:
+    get:
+      tags: [Recipes]
+      summary: Get user's saved recipes (FR-013)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+
+    post:
+      tags: [Recipes]
+      summary: Save a meal as a recipe (FR-013)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreate'
+      responses:
+        '201':
+          description: Recipe created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+
+  /recipes/{recipe_id}:
+    get:
+      tags: [Recipes]
+      summary: Get recipe by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RecipeId'
+      responses:
+        '200':
+          description: Recipe details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+
+    delete:
+      tags: [Recipes]
+      summary: Delete recipe
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RecipeId'
+      responses:
+        '204':
+          description: Recipe deleted
+
+  # ===========================
+  # Meal Plans
+  # ===========================
+  /plans:
+    get:
+      tags: [Plans]
+      summary: Get user's meal plans
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of meal plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MealPlan'
+
+    post:
+      tags: [Plans]
+      summary: Generate a meal plan (FR-006, FR-007)
+      description: |
+        Generate a meal plan using Google Gemini 2.5 Flash (free tier).
+        Considers user's pantry inventory and saved recipes.
+        Returns 429 if user has exceeded their weekly quota (2 plans/week).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealPlanCreate'
+      responses:
+        '201':
+          description: Meal plan generated (may take up to 20 seconds)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealPlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: You've reached your weekly plan limit. Next plan available in 12 hours.
+
+  /plans/{plan_id}:
+    get:
+      tags: [Plans]
+      summary: Get meal plan by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Meal plan with all meals and shopping list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealPlan'
+
+    delete:
+      tags: [Plans]
+      summary: Delete meal plan
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '204':
+          description: Meal plan deleted
+
+  /plans/{plan_id}/shopping-list:
+    get:
+      tags: [Plans]
+      summary: Get shopping list for meal plan (FR-008)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200':
+          description: Shopping list with items needed for plan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShoppingListItem'
+
+  /plans/{plan_id}/shopping-list/{item_id}:
+    patch:
+      tags: [Plans]
+      summary: Mark shopping list item as purchased
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_purchased:
+                  type: boolean
+      responses:
+        '200':
+          description: Shopping item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingListItem'
+
+  # ===========================
+  # Feedback
+  # ===========================
+  /feedback:
+    post:
+      tags: [Feedback]
+      summary: Submit feedback (FR-009)
+      description: Submit meal rating (1-5) or plan change feedback
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreate'
+      responses:
+        '201':
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+
+  # ===========================
+  # Insights
+  # ===========================
+  /insights:
+    get:
+      tags: [Insights]
+      summary: Get user's saved insights (FR-010, FR-011)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of saved insights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Insight'
+
+    post:
+      tags: [Insights]
+      summary: Create a custom insight (FR-011)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InsightCreate'
+      responses:
+        '201':
+          description: Insight created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insight'
+
+  /insights/{insight_id}:
+    get:
+      tags: [Insights]
+      summary: Get insight by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InsightId'
+      responses:
+        '200':
+          description: Insight configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Insight'
+
+    delete:
+      tags: [Insights]
+      summary: Delete insight
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InsightId'
+      responses:
+        '204':
+          description: Insight deleted
+
+  /insights/{insight_id}/data:
+    get:
+      tags: [Insights]
+      summary: Get computed data for insight visualization (FR-010)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InsightId'
+      responses:
+        '200':
+          description: Chart data based on insight configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InsightData'
+
+# ===========================
+# Components
+# ===========================
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FoodItemId:
+      name: food_item_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PantryItemId:
+      name: pantry_item_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    MealLogId:
+      name: meal_log_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    RecipeId:
+      name: recipe_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PlanId:
+      name: plan_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    InsightId:
+      name: insight_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # ===========================
+    # User
+    # ===========================
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    # ===========================
+    # FoodItem
+    # ===========================
+    FoodItemCreate:
+      type: object
+      required: [name, serving_size, serving_unit]
+      properties:
+        name:
+          type: string
+          example: Whole Milk
+        brand:
+          type: string
+          nullable: true
+          example: Organic Valley
+        serving_size:
+          type: number
+          format: float
+          example: 1.0
+        serving_unit:
+          type: string
+          example: cup
+        calories:
+          type: number
+          format: float
+          nullable: true
+          example: 150.0
+        protein_g:
+          type: number
+          format: float
+          nullable: true
+        carbs_g:
+          type: number
+          format: float
+          nullable: true
+        fat_g:
+          type: number
+          format: float
+          nullable: true
+        saturated_fat_g:
+          type: number
+          format: float
+          nullable: true
+        trans_fat_g:
+          type: number
+          format: float
+          nullable: true
+        cholesterol_mg:
+          type: number
+          format: float
+          nullable: true
+        sodium_mg:
+          type: number
+          format: float
+          nullable: true
+        fiber_g:
+          type: number
+          format: float
+          nullable: true
+        sugar_g:
+          type: number
+          format: float
+          nullable: true
+        vitamin_a_mcg:
+          type: number
+          format: float
+          nullable: true
+        vitamin_c_mg:
+          type: number
+          format: float
+          nullable: true
+        calcium_mg:
+          type: number
+          format: float
+          nullable: true
+        iron_mg:
+          type: number
+          format: float
+          nullable: true
+        cost_per_serving:
+          type: number
+          format: float
+          nullable: true
+          example: 0.75
+
+    FoodItemUpdate:
+      allOf:
+        - $ref: '#/components/schemas/FoodItemCreate'
+
+    FoodItem:
+      allOf:
+        - $ref: '#/components/schemas/FoodItemCreate'
+        - type: object
+          required: [id, user_id, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    # ===========================
+    # PantryItem
+    # ===========================
+    PantryItemCreate:
+      type: object
+      required: [food_item_id, quantity, unit]
+      properties:
+        food_item_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+          example: 2.0
+        unit:
+          type: string
+          example: cups
+        expiration_date:
+          type: string
+          format: date
+          nullable: true
+        location:
+          type: string
+          enum: [Pantry, Fridge, Freezer]
+          nullable: true
+          example: Fridge
+
+    PantryItemUpdate:
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+        expiration_date:
+          type: string
+          format: date
+          nullable: true
+        location:
+          type: string
+          enum: [Pantry, Fridge, Freezer]
+          nullable: true
+
+    PantryItem:
+      allOf:
+        - $ref: '#/components/schemas/PantryItemCreate'
+        - type: object
+          required: [id, user_id, created_at, updated_at, food_item]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            food_item:
+              $ref: '#/components/schemas/FoodItem'
+
+    # ===========================
+    # MealLog
+    # ===========================
+    MealLogCreate:
+      type: object
+      required: [logged_at, items]
+      properties:
+        meal_name:
+          type: string
+          nullable: true
+          example: Breakfast
+        meal_type:
+          type: string
+          enum: [breakfast, lunch, dinner, snack]
+          nullable: true
+        logged_at:
+          type: string
+          format: date-time
+          example: "2025-10-25T08:00:00Z"
+        notes:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoggedItemCreate'
+
+    LoggedItemCreate:
+      type: object
+      required: [food_item_id, servings]
+      properties:
+        food_item_id:
+          type: string
+          format: uuid
+        servings:
+          type: number
+          format: float
+          minimum: 0.01
+          example: 2.0
+
+    LoggedItem:
+      allOf:
+        - $ref: '#/components/schemas/LoggedItemCreate'
+        - type: object
+          required: [id, meal_log_id, food_item, computed_nutrition]
+          properties:
+            id:
+              type: string
+              format: uuid
+            meal_log_id:
+              type: string
+              format: uuid
+            food_item:
+              $ref: '#/components/schemas/FoodItem'
+            computed_nutrition:
+              $ref: '#/components/schemas/ComputedNutrition'
+
+    ComputedNutrition:
+      type: object
+      description: Total nutrition for this logged item (food_item values × servings)
+      properties:
+        calories:
+          type: number
+          format: float
+        protein_g:
+          type: number
+          format: float
+        carbs_g:
+          type: number
+          format: float
+        fat_g:
+          type: number
+          format: float
+        cost:
+          type: number
+          format: float
+
+    MealLog:
+      allOf:
+        - type: object
+          required: [id, user_id, logged_at, items, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            meal_name:
+              type: string
+              nullable: true
+            meal_type:
+              type: string
+              nullable: true
+            logged_at:
+              type: string
+              format: date-time
+            notes:
+              type: string
+              nullable: true
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LoggedItem'
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            total_nutrition:
+              $ref: '#/components/schemas/ComputedNutrition'
+
+    # ===========================
+    # Recipe
+    # ===========================
+    RecipeCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Morning Smoothie
+        description:
+          type: string
+          nullable: true
+        created_from_meal_log_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: If saving from a meal log, provide the meal log ID
+
+    Recipe:
+      allOf:
+        - $ref: '#/components/schemas/RecipeCreate'
+        - type: object
+          required: [id, user_id, ingredients, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            ingredients:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  food_item:
+                    $ref: '#/components/schemas/FoodItem'
+                  servings:
+                    type: number
+                    format: float
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    # ===========================
+    # MealPlan
+    # ===========================
+    MealPlanCreate:
+      type: object
+      required: [start_date, end_date, meal_types]
+      properties:
+        name:
+          type: string
+          nullable: true
+          example: Week of Nov 1
+        start_date:
+          type: string
+          format: date
+          example: "2025-11-01"
+        end_date:
+          type: string
+          format: date
+          example: "2025-11-07"
+        meal_types:
+          type: array
+          items:
+            type: string
+            enum: [breakfast, lunch, dinner, snack]
+          example: [breakfast, lunch, dinner]
+        exclude_meals:
+          type: array
+          description: Specific date-time combos to exclude (e.g., lunch meeting on Nov 3)
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              meal_type:
+                type: string
+
+    MealPlan:
+      allOf:
+        - type: object
+          required: [id, user_id, name, start_date, end_date, meals, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            meals:
+              type: array
+              items:
+                $ref: '#/components/schemas/PlannedMeal'
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    PlannedMeal:
+      type: object
+      required: [id, date, meal_type]
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        meal_type:
+          type: string
+          enum: [breakfast, lunch, dinner, snack]
+        recipe:
+          $ref: '#/components/schemas/Recipe'
+          nullable: true
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              food_item:
+                $ref: '#/components/schemas/FoodItem'
+              servings:
+                type: number
+                format: float
+        notes:
+          type: string
+          nullable: true
+          example: LLM-generated cooking instructions
+
+    ShoppingListItem:
+      type: object
+      required: [id, food_item, quantity_needed, unit, is_purchased]
+      properties:
+        id:
+          type: string
+          format: uuid
+        food_item:
+          $ref: '#/components/schemas/FoodItem'
+        quantity_needed:
+          type: number
+          format: float
+        unit:
+          type: string
+        is_purchased:
+          type: boolean
+          default: false
+
+    # ===========================
+    # Feedback
+    # ===========================
+    FeedbackCreate:
+      type: object
+      required: [feedback_type]
+      properties:
+        feedback_type:
+          type: string
+          enum: [meal_rating, plan_change]
+        meal_log_id:
+          type: string
+          format: uuid
+          nullable: true
+        meal_plan_id:
+          type: string
+          format: uuid
+          nullable: true
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        comment:
+          type: string
+          nullable: true
+
+    Feedback:
+      allOf:
+        - $ref: '#/components/schemas/FeedbackCreate'
+        - type: object
+          required: [id, user_id, created_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+
+    # ===========================
+    # Insights
+    # ===========================
+    InsightCreate:
+      type: object
+      required: [name, chart_type, metric, aggregation, time_range]
+      properties:
+        name:
+          type: string
+          example: Daily Calorie Trend
+        chart_type:
+          type: string
+          enum: [line, bar, pie, scatter]
+        metric:
+          type: string
+          example: calories
+          description: Can be any nutritional field (calories, protein_g, etc.) or "cost"
+        aggregation:
+          type: string
+          enum: [sum, average, count]
+        time_range:
+          type: string
+          enum: [7_days, 30_days, 90_days, all_time]
+
+    Insight:
+      allOf:
+        - $ref: '#/components/schemas/InsightCreate'
+        - type: object
+          required: [id, user_id, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            user_id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    InsightData:
+      type: object
+      description: Computed chart data based on insight configuration
+      properties:
+        labels:
+          type: array
+          items:
+            type: string
+          example: ["2025-10-19", "2025-10-20", "2025-10-21"]
+        values:
+          type: array
+          items:
+            type: number
+          example: [1850, 2100, 1950]
+        metadata:
+          type: object
+          properties:
+            average:
+              type: number
+            min:
+              type: number
+            max:
+              type: number
+
+    # ===========================
+    # Errors
+    # ===========================
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
