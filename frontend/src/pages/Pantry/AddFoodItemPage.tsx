@@ -12,6 +12,7 @@ import { ArrowBack as ArrowBackIcon, Save as SaveIcon } from '@mui/icons-materia
 import NutritionLabelInput from '../../components/NutritionLabelInput';
 import type { FoodItemCreate } from '../../types';
 import { foodItemsApi } from '../../services/api/foodItems';
+import ImageUploadButton from '../../components/ImageUploadButton';
 
 export default function AddFoodItemPage() {
   const navigate = useNavigate();
@@ -90,6 +91,24 @@ export default function AddFoodItemPage() {
       )}
 
       <Box component="form" onSubmit={handleSubmit}>
+        <Box sx={{ mb: 2 }}>
+          <ImageUploadButton
+            onFileSelected={async (file) => {
+              try {
+                const parsed = await foodItemsApi.uploadNutritionLabel(file);
+                const updates: Partial<FoodItemCreate> = { ...values };
+                if (parsed.calories?.value != null) updates.calories = parsed.calories.value;
+                if (parsed.protein_g?.value != null) updates.protein_g = parsed.protein_g.value;
+                if (parsed.carbs_g?.value != null) updates.carbs_g = parsed.carbs_g.value;
+                if (parsed.fat_g?.value != null) updates.fat_g = parsed.fat_g.value;
+                setValues(updates);
+              } catch (e: any) {
+                setError(e.response?.data?.detail || 'Failed to parse nutrition label');
+              }
+            }}
+          />
+        </Box>
+
         <NutritionLabelInput values={values} onChange={handleFieldChange} errors={errors} />
 
         <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>

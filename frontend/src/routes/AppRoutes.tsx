@@ -7,6 +7,8 @@ import PantryPage from '../pages/Pantry/PantryPage';
 import AddFoodItemPage from '../pages/Pantry/AddFoodItemPage';
 import AddToPantryPage from '../pages/Pantry/AddToPantryPage';
 import EditPantryItemPage from '../pages/Pantry/EditPantryItemPage';
+import MealLoggerPage from '../pages/MealLogger/MealLoggerPage';
+import CreateMealPage from '../pages/MealLogger/CreateMealPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -68,6 +70,8 @@ export default function AppRoutes() {
           <Route path="pantry/add-food-item" element={<AddFoodItemPage />} />
           <Route path="pantry/add-to-pantry" element={<AddToPantryPage />} />
           <Route path="pantry/edit/:id" element={<EditPantryItemPage />} />
+          <Route path="meal-logger" element={<MealLoggerPage />} />
+          <Route path="meal-logger/create" element={<CreateMealPage />} />
         </Route>
 
         {/* Catch all */}

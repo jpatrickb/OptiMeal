@@ -16,6 +16,8 @@ from src.models.user import User
 from src.schemas.food_item import FoodItemCreate, FoodItemUpdate, FoodItemResponse
 from src.schemas.base import MessageResponse
 from src.services.food_item_service import FoodItemService
+from src.services.nutrition_ocr_service import NutritionOCRService
+from fastapi import File, UploadFile
 
 router = APIRouter(prefix="/food-items", tags=["food-items"])
 
@@ -171,3 +173,20 @@ def delete_food_item(
             detail="Food item not found"
         )
     return MessageResponse(message="Food item deleted successfully")
+
+
+@router.post(
+    "/parse-label",
+    summary="Parse nutrition label image using OCR",
+    description="Upload an image of a nutrition label to extract calories, protein, carbs, and fat with confidence scores."
+)
+async def parse_nutrition_label(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    contents = await file.read()
+    service = NutritionOCRService(lang="en")
+    parsed = service.parse_label(contents)
+    # Convert dataclasses to primitives for JSON
+    return {k: {"value": v.value, "confidence": v.confidence} for k, v in parsed.items()}

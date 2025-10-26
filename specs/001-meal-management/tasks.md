@@ -162,71 +162,71 @@ Based on plan.md, this project uses:
 
 ### Backend - Models & Database
 
-- [ ] T066 [P] [US2] Create MealLog model in api/src/models/meal_log.py with user_id, meal_name, meal_type, logged_at, notes per data-model.md
-- [ ] T067 [P] [US2] Create LoggedItem model in api/src/models/logged_item.py with meal_log_id, food_item_id, servings
-- [ ] T068 [P] [US2] Create Recipe model in api/src/models/recipe.py with user_id, name, description, created_from_meal_log_id
-- [ ] T069 [P] [US2] Create RecipeIngredient model in api/src/models/recipe_ingredient.py with recipe_id, food_item_id, servings
-- [ ] T070 [US2] Generate Alembic migration for meal_logs, logged_items, recipes, recipe_ingredients tables
-- [ ] T071 [US2] Apply migration to create meal logging tables with appropriate indexes and cascade deletes
+- [X] T066 [P] [US2] Create MealLog model in api/src/models/meal_log.py with user_id, meal_name, meal_type, logged_at, notes per data-model.md
+- [X] T067 [P] [US2] Create LoggedItem model in api/src/models/logged_item.py with meal_log_id, food_item_id, servings
+- [X] T068 [P] [US2] Create Recipe model in api/src/models/recipe.py with user_id, name, description, created_from_meal_log_id
+- [X] T069 [P] [US2] Create RecipeIngredient model in api/src/models/recipe_ingredient.py with recipe_id, food_item_id, servings
+- [X] T070 [US2] Generate Alembic migration for meal_logs, logged_items, recipes, recipe_ingredients tables
+- [X] T071 [US2] Apply migration to create meal logging tables with appropriate indexes and cascade deletes
 
 ### Backend - Schemas
 
-- [ ] T072 [P] [US2] Create MealLog schemas in api/src/schemas/meal_log.py for MealLogCreate, MealLogResponse with computed nutrition totals
-- [ ] T073 [P] [US2] Create LoggedItem schemas in api/src/schemas/logged_item.py for LoggedItemCreate with servings validation
-- [ ] T074 [P] [US2] Create Recipe schemas in api/src/schemas/recipe.py for RecipeCreate, RecipeResponse with ingredients list
+- [X] T072 [P] [US2] Create MealLog schemas in api/src/schemas/meal_log.py for MealLogCreate, MealLogResponse with computed nutrition totals
+- [X] T073 [P] [US2] Create LoggedItem schemas in api/src/schemas/logged_item.py for LoggedItemCreate with servings validation
+- [X] T074 [P] [US2] Create Recipe schemas in api/src/schemas/recipe.py for RecipeCreate, RecipeResponse with ingredients list
 
 ### Backend - Services
 
-- [ ] T075 [US2] Implement MealLogService in api/src/services/meal_log_service.py with create_meal_log method including transaction for logged items
-- [ ] T076 [US2] Implement pantry deduction logic in MealLogService.create_meal_log to decrement PantryItem.quantity for each LoggedItem
-- [ ] T077 [US2] Add pantry overflow handling in MealLogService to set quantity to 0 and return warning when servings > available
-- [ ] T078 [US2] Implement nutrition aggregation in MealLogService.get_meal_log to sum calories, protein, carbs, fat from all logged items
-- [ ] T079 [P] [US2] Implement RecipeService in api/src/services/recipe_service.py with create_from_meal_log method to copy logged items
-- [ ] T080 [P] [US2] Implement RecipeService.list_recipes and get_recipe_details with ingredient details
+- [X] T075 [US2] Implement MealLogService in api/src/services/meal_log_service.py with create_meal_log method including transaction for logged items
+- [X] T076 [US2] Implement pantry deduction logic in MealLogService.create_meal_log to decrement PantryItem.quantity for each LoggedItem
+- [X] T077 [US2] Add pantry overflow handling in MealLogService to set quantity to 0 and return warning when servings > available
+- [X] T078 [US2] Implement nutrition aggregation in MealLogService.get_meal_log to sum calories, protein, carbs, fat from all logged items
+- [X] T079 [P] [US2] Implement RecipeService in api/src/services/recipe_service.py with create_from_meal_log method to copy logged items
+- [X] T080 [P] [US2] Implement RecipeService.list_recipes and get_recipe_details with ingredient details
 
 ### Backend - API Endpoints
 
-- [ ] T081 [P] [US2] Implement POST /api/v1/meals endpoint in api/src/api/meals.py to create meal log with items array
-- [ ] T082 [P] [US2] Implement GET /api/v1/meals endpoint in api/src/api/meals.py to list user's meal history with date filtering
-- [ ] T083 [P] [US2] Implement GET /api/v1/meals/{id} endpoint in api/src/api/meals.py to get meal details with nutrition totals
-- [ ] T084 [P] [US2] Implement POST /api/v1/recipes endpoint in api/src/api/recipes.py to save meal as recipe
-- [ ] T085 [P] [US2] Implement GET /api/v1/recipes endpoint in api/src/api/recipes.py to list user's saved recipes
-- [ ] T086 [P] [US2] Implement GET /api/v1/recipes/{id} endpoint in api/src/api/recipes.py to get recipe with ingredients
-- [ ] T087 [US2] Include meals and recipes routers in api/src/main.py
+- [X] T081 [P] [US2] Implement POST /api/v1/meals endpoint in api/src/api/meals.py to create meal log with items array
+- [X] T082 [P] [US2] Implement GET /api/v1/meals endpoint in api/src/api/meals.py to list user's meal history with date filtering
+- [X] T083 [P] [US2] Implement GET /api/v1/meals/{id} endpoint in api/src/api/meals.py to get meal details with nutrition totals
+- [X] T084 [P] [US2] Implement POST /api/v1/recipes endpoint in api/src/api/recipes.py to save meal as recipe
+- [X] T085 [P] [US2] Implement GET /api/v1/recipes endpoint in api/src/api/recipes.py to list user's saved recipes
+- [X] T086 [P] [US2] Implement GET /api/v1/recipes/{id} endpoint in api/src/api/recipes.py to get recipe with ingredients
+- [X] T087 [US2] Include meals and recipes routers in api/src/main.py
 
 ### Backend - OCR Integration
 
-- [ ] T088 [US2] Install PaddleOCR, MediaPipe, OpenCV dependencies in api/requirements.txt per research.md
-- [ ] T089 [US2] Implement image preprocessing utilities in api/src/utils/image_processing.py using MediaPipe for orientation and OpenCV for enhancement
-- [ ] T090 [US2] Implement nutrition label OCR service in api/src/services/nutrition_ocr_service.py using PaddleOCR for text extraction
-- [ ] T091 [US2] Implement nutrition label parsing logic in api/src/services/nutrition_ocr_service.py with regex patterns for calories, protein, carbs, fat fields
-- [ ] T092 [US2] Add confidence scoring to OCR service and return parsed fields with confidence values
-- [ ] T093 [US2] Implement POST /api/v1/food-items/parse-label endpoint in api/src/api/food_items.py to accept image upload and return parsed nutrition data
+- [X] T088 [US2] Install PaddleOCR, MediaPipe, OpenCV dependencies in api/requirements.txt per research.md
+- [X] T089 [US2] Implement image preprocessing utilities in api/src/utils/image_processing.py using MediaPipe for orientation and OpenCV for enhancement
+- [X] T090 [US2] Implement nutrition label OCR service in api/src/services/nutrition_ocr_service.py using PaddleOCR for text extraction
+- [X] T091 [US2] Implement nutrition label parsing logic in api/src/services/nutrition_ocr_service.py with regex patterns for calories, protein, carbs, fat fields
+- [X] T092 [US2] Add confidence scoring to OCR service and return parsed fields with confidence values
+- [X] T093 [US2] Implement POST /api/v1/food-items/parse-label endpoint in api/src/api/food_items.py to accept image upload and return parsed nutrition data
 
 ### Frontend - Components
 
-- [ ] T094 [P] [US2] Create MealCard component in frontend/src/components/MealCard/index.tsx to display meal with nutrition summary using MUI Card
-- [ ] T095 [P] [US2] Create FoodItemSelector component in frontend/src/components/FoodItemSelector/index.tsx with MUI Autocomplete for search and quantity input
-- [ ] T096 [P] [US2] Create RecipeCard component in frontend/src/components/RecipeCard/index.tsx for recipe selection using MUI Card
-- [ ] T097 [US2] Create ImageUploadButton component in frontend/src/components/ImageUploadButton/index.tsx using HTML file input with drag-and-drop
+- [X] T094 [P] [US2] Create MealCard component in frontend/src/components/MealCard/index.tsx to display meal with nutrition summary using MUI Card
+- [X] T095 [P] [US2] Create FoodItemSelector component in frontend/src/components/FoodItemSelector/index.tsx with MUI Autocomplete for search and quantity input
+- [X] T096 [P] [US2] Create RecipeCard component in frontend/src/components/RecipeCard/index.tsx for recipe selection using MUI Card
+- [X] T097 [US2] Create ImageUploadButton component in frontend/src/components/ImageUploadButton/index.tsx using HTML file input with drag-and-drop
 
 ### Frontend - API Integration
 
-- [ ] T098 [P] [US2] Create meals API client methods in frontend/src/services/api/meals.ts for create, list, get
-- [ ] T099 [P] [US2] Create recipes API client methods in frontend/src/services/api/recipes.ts for create, list, get
-- [ ] T100 [US2] Create OCR API client method in frontend/src/services/api/foodItems.ts for uploadNutritionLabel
+- [X] T098 [P] [US2] Create meals API client methods in frontend/src/services/api/meals.ts for create, list, get
+- [X] T099 [P] [US2] Create recipes API client methods in frontend/src/services/api/recipes.ts for create, list, get
+- [X] T100 [US2] Create OCR API client method in frontend/src/services/api/foodItems.ts for uploadNutritionLabel
 
 ### Frontend - Pages
 
-- [ ] T101 [US2] Implement MealLoggerPage in frontend/src/pages/MealLogger/MealLoggerPage.tsx with meal history list using MUI Table/Cards
-- [ ] T102 [US2] Implement CreateMealPage in frontend/src/pages/MealLogger/CreateMealPage.tsx with FoodItemSelector for adding items
-- [ ] T103 [US2] Add meal type select (breakfast/lunch/dinner/snack) and date/time picker to CreateMealPage using MUI components
-- [ ] T104 [US2] Display real-time nutrition totals (calories, protein, carbs, fat) as items are added in CreateMealPage
-- [ ] T105 [US2] Add Save as Recipe button to MealLoggerPage after meal is logged
-- [ ] T106 [US2] Implement file upload with preview in AddFoodItemPage for nutrition label upload
-- [ ] T107 [US2] Display parsed OCR results in NutritionLabelInput with editable fields for user confirmation
-- [ ] T108 [US2] Add recipe selection option in CreateMealPage to log entire recipe as single item
-- [ ] T109 [US2] Display pantry warnings with MUI Alert when logged quantity exceeds available inventory
+- [X] T101 [US2] Implement MealLoggerPage in frontend/src/pages/MealLogger/MealLoggerPage.tsx with meal history list using MUI Table/Cards
+- [X] T102 [US2] Implement CreateMealPage in frontend/src/pages/MealLogger/CreateMealPage.tsx with FoodItemSelector for adding items
+- [X] T103 [US2] Add meal type select (breakfast/lunch/dinner/snack) and date/time picker to CreateMealPage using MUI components
+- [X] T104 [US2] Display real-time nutrition totals (calories, protein, carbs, fat) as items are added in CreateMealPage
+- [X] T105 [US2] Add Save as Recipe button to MealLoggerPage after meal is logged
+- [X] T106 [US2] Implement file upload with preview in AddFoodItemPage for nutrition label upload
+- [X] T107 [US2] Display parsed OCR results in NutritionLabelInput with editable fields for user confirmation
+- [X] T108 [US2] Add recipe selection option in CreateMealPage to log entire recipe as single item
+- [X] T109 [US2] Display pantry warnings with MUI Alert when logged quantity exceeds available inventory
 
 **Checkpoint**: User Story 2 complete - users can log meals, track nutrition, save recipes, and use OCR independently
 

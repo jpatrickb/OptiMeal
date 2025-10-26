@@ -104,6 +104,23 @@ export const deleteFoodItem = async (id: string): Promise<{ message: string }> =
   return response.data;
 };
 
+/**
+ * Upload nutrition label image for OCR parsing
+ */
+export const uploadNutritionLabel = async (file: File): Promise<{
+  calories: { value: number | null; confidence: number };
+  protein_g: { value: number | null; confidence: number };
+  carbs_g: { value: number | null; confidence: number };
+  fat_g: { value: number | null; confidence: number };
+}> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await apiClient.post('/food-items/parse-label', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
 // Export as foodItemsApi object for easier use
 export const foodItemsApi = {
   create: createFoodItem,
@@ -111,4 +128,5 @@ export const foodItemsApi = {
   getById: getFoodItem,
   update: updateFoodItem,
   delete: deleteFoodItem,
+  uploadNutritionLabel,
 };

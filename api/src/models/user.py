@@ -36,8 +36,8 @@ class User(Base):
     # Relationships
     food_items = relationship("FoodItem", back_populates="user", cascade="all, delete-orphan")
     pantry_items = relationship("PantryItem", back_populates="user", cascade="all, delete-orphan")
-    # meal_logs = relationship("MealLog", back_populates="user", cascade="all, delete-orphan")
-    # recipes = relationship("Recipe", back_populates="user", cascade="all, delete-orphan")
+    meal_logs = relationship("MealLog", back_populates="user", cascade="all, delete-orphan")
+    recipes = relationship("Recipe", back_populates="user", cascade="all, delete-orphan")
     # meal_plans = relationship("MealPlan", back_populates="user", cascade="all, delete-orphan")
     # feedback = relationship("Feedback", back_populates="user", cascade="all, delete-orphan")
     # insights = relationship("Insight", back_populates="user", cascade="all, delete-orphan")

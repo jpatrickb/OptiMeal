@@ -44,7 +44,7 @@ def health():
     return {"status": "healthy"}
 
 # Import and include routers
-from src.api import auth, food_items, pantry
+from src.api import auth, food_items, pantry, meals, recipes
 
 # Authentication routes
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
@@ -55,9 +55,13 @@ app.include_router(food_items.router, prefix="/api/v1")
 # Pantry routes
 app.include_router(pantry.router, prefix="/api/v1")
 
+# Meals routes
+app.include_router(meals.router, prefix="/api/v1")
+
+# Recipes routes
+app.include_router(recipes.router, prefix="/api/v1")
+
 # Additional routers will be added as they are implemented
-# app.include_router(meals.router, prefix="/api/v1/meals", tags=["meals"])
-# app.include_router(recipes.router, prefix="/api/v1/recipes", tags=["recipes"])
 # app.include_router(plans.router, prefix="/api/v1/plans", tags=["plans"])
 # app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["feedback"])
 # app.include_router(insights.router, prefix="/api/v1/insights", tags=["insights"])
