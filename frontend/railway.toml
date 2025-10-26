@@ -1,0 +1,16 @@
+# Railway service config for OptiMeal Frontend (Vite + React)
+# Docs: https://docs.railway.app/deploy/config
+
+[build]
+# Build static assets
+builder = "NIXPACKS"
+buildCommand = "npm ci && npm run build"
+
+[deploy]
+# Serve the built dist/ directory
+startCommand = "npx serve -s dist -l ${PORT}"
+
+[env]
+# Point frontend to your deployed API base URL (update after API is live)
+VITE_API_BASE_URL = "https://your-api.example.com/api/v1"
+NODE_ENV = "production"
