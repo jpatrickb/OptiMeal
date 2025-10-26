@@ -48,7 +48,7 @@ Based on plan.md, this project uses:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-**STATUS**: ✅ **COMPLETE** (21/25 tasks done, 2 deferred to Docker, 2 deferred to UI development)
+**STATUS**: ✅ **COMPLETE** (25/25 tasks done)
 **DATE COMPLETED**: 2025-10-26
 
 ### Database & ORM Foundation
@@ -58,8 +58,8 @@ Based on plan.md, this project uses:
 - [X] T015 Configure Alembic env.py to use Base.metadata for autogenerate support
 - [X] T016 Create User model in api/src/models/user.py with id, email, password_hash, full_name, created_at, updated_at fields per data-model.md
 - [X] T017 Create FoodItem model in api/src/models/food_item.py with all nutritional fields per data-model.md
-- [ ] T018 Generate initial Alembic migration for User and FoodItem models (SKIPPED - will run via Docker)
-- [ ] T019 Apply Alembic migration to create users and food_items tables (SKIPPED - will run via Docker)
+- [X] T018 Generate initial Alembic migration for User and FoodItem models (COMPLETED via Docker)
+- [X] T019 Apply Alembic migration to create users and food_items tables (COMPLETED via Docker)
 
 ### Authentication & Authorization
 
@@ -82,11 +82,11 @@ Based on plan.md, this project uses:
 
 - [X] T031 Create axios API client in frontend/src/services/api.ts with baseURL, timeout, auth interceptors
 - [X] T032 Implement localStorage wrapper in frontend/src/services/storage.ts for token persistence
-- [ ] T033 Setup React Router in frontend/src/routes/AppRoutes.tsx with protected and public routes (DEFERRED - will implement when needed)
+- [X] T033 Setup React Router in frontend/src/routes/AppRoutes.tsx with protected and public routes
 - [X] T034 Create authentication context in frontend/src/contexts/AuthContext.tsx for login/logout state
-- [ ] T035 Implement Login page in frontend/src/pages/Auth/LoginPage.tsx with Material-UI form (DEFERRED - will implement when needed)
-- [ ] T036 Implement Register page in frontend/src/pages/Auth/RegisterPage.tsx with Material-UI form (DEFERRED - will implement when needed)
-- [ ] T037 Create main navigation layout in frontend/src/components/Layout/MainLayout.tsx with MUI Drawer for Pantry, Logger, Planner, Insights (DEFERRED - will implement when needed)
+- [X] T035 Implement Login page in frontend/src/pages/Auth/LoginPage.tsx with Material-UI form
+- [X] T036 Implement Register page in frontend/src/pages/Auth/RegisterPage.tsx with Material-UI form
+- [X] T037 Create main navigation layout in frontend/src/components/Layout/MainLayout.tsx with MUI Drawer for Pantry, Logger, Planner, Insights
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -98,54 +98,57 @@ Based on plan.md, this project uses:
 
 **Independent Test**: A user can successfully add a list of grocery items to their pantry, see the correct quantities, and then remove an item
 
+**STATUS**: ✅ **COMPLETE** (28/28 tasks done - Backend + Frontend)
+**DATE COMPLETED**: 2025-10-26
+
 ### Backend - Models & Database
 
-- [ ] T038 [P] [US1] Create PantryItem model in api/src/models/pantry_item.py with user_id, food_item_id, quantity, unit, expiration_date, location per data-model.md
-- [ ] T039 [US1] Generate Alembic migration for pantry_items table with foreign keys to users and food_items
-- [ ] T040 [US1] Apply migration to create pantry_items table with indexes on user_id and expiration_date
+- [X] T038 [P] [US1] Create PantryItem model in api/src/models/pantry_item.py with user_id, food_item_id, quantity, unit, expiration_date, location per data-model.md
+- [X] T039 [US1] Generate Alembic migration for pantry_items table with foreign keys to users and food_items
+- [X] T040 [US1] Apply migration to create pantry_items table with indexes on user_id and expiration_date
 
 ### Backend - Schemas
 
-- [ ] T041 [P] [US1] Create FoodItem schemas in api/src/schemas/food_item.py for FoodItemCreate, FoodItemUpdate, FoodItemResponse
-- [ ] T042 [P] [US1] Create PantryItem schemas in api/src/schemas/pantry_item.py for PantryItemCreate, PantryItemUpdate, PantryItemResponse with nested FoodItem
+- [X] T041 [P] [US1] Create FoodItem schemas in api/src/schemas/food_item.py for FoodItemCreate, FoodItemUpdate, FoodItemResponse
+- [X] T042 [P] [US1] Create PantryItem schemas in api/src/schemas/pantry_item.py for PantryItemCreate, PantryItemUpdate, PantryItemResponse with nested FoodItem
 
 ### Backend - Services
 
-- [ ] T043 [P] [US1] Implement FoodItemService in api/src/services/food_item_service.py with CRUD operations and user-scoped queries
-- [ ] T044 [US1] Implement PantryService in api/src/services/pantry_service.py with add_item, update_quantity, delete_item, get_pantry methods
-- [ ] T045 [US1] Add validation in PantryService to ensure quantity >= 0 and unit matches food_item.serving_unit
+- [X] T043 [P] [US1] Implement FoodItemService in api/src/services/food_item_service.py with CRUD operations and user-scoped queries
+- [X] T044 [US1] Implement PantryService in api/src/services/pantry_service.py with add_item, update_quantity, delete_item, get_pantry methods
+- [X] T045 [US1] Add validation in PantryService to ensure quantity >= 0 and unit matches food_item.serving_unit
 
 ### Backend - API Endpoints
 
-- [ ] T046 [P] [US1] Implement POST /api/v1/food-items endpoint in api/src/api/food_items.py to create food item
-- [ ] T047 [P] [US1] Implement GET /api/v1/food-items endpoint in api/src/api/food_items.py to list user's food items
-- [ ] T048 [P] [US1] Implement PUT /api/v1/food-items/{id} endpoint in api/src/api/food_items.py to update food item
-- [ ] T049 [P] [US1] Implement DELETE /api/v1/food-items/{id} endpoint in api/src/api/food_items.py
-- [ ] T050 [P] [US1] Implement POST /api/v1/pantry endpoint in api/src/api/pantry.py to add pantry item
-- [ ] T051 [P] [US1] Implement GET /api/v1/pantry endpoint in api/src/api/pantry.py to get user's pantry with food details
-- [ ] T052 [P] [US1] Implement PATCH /api/v1/pantry/{id} endpoint in api/src/api/pantry.py to update quantity
-- [ ] T053 [P] [US1] Implement DELETE /api/v1/pantry/{id} endpoint in api/src/api/pantry.py
-- [ ] T054 [US1] Include food_items and pantry routers in api/src/main.py with /api/v1 prefix
+- [X] T046 [P] [US1] Implement POST /api/v1/food-items endpoint in api/src/api/food_items.py to create food item
+- [X] T047 [P] [US1] Implement GET /api/v1/food-items endpoint in api/src/api/food_items.py to list user's food items
+- [X] T048 [P] [US1] Implement PUT /api/v1/food-items/{id} endpoint in api/src/api/food_items.py to update food item
+- [X] T049 [P] [US1] Implement DELETE /api/v1/food-items/{id} endpoint in api/src/api/food_items.py
+- [X] T050 [P] [US1] Implement POST /api/v1/pantry endpoint in api/src/api/pantry.py to add pantry item
+- [X] T051 [P] [US1] Implement GET /api/v1/pantry endpoint in api/src/api/pantry.py to get user's pantry with food details
+- [X] T052 [P] [US1] Implement PATCH /api/v1/pantry/{id} endpoint in api/src/api/pantry.py to update quantity
+- [X] T053 [P] [US1] Implement DELETE /api/v1/pantry/{id} endpoint in api/src/api/pantry.py
+- [X] T054 [US1] Include food_items and pantry routers in api/src/main.py with /api/v1 prefix
 
 ### Frontend - Components
 
-- [ ] T055 [P] [US1] Create FoodItemCard component in frontend/src/components/FoodItemCard/index.tsx for displaying food with nutrition info using MUI Card
-- [ ] T056 [P] [US1] Create PantryItemCard component in frontend/src/components/PantryItemCard/index.tsx with quantity and expiration display using MUI Card
-- [ ] T057 [P] [US1] Create NutritionLabelInput component in frontend/src/components/NutritionLabelInput/index.tsx with label-style form fields using MUI TextField
+- [X] T055 [P] [US1] Create FoodItemCard component in frontend/src/components/FoodItemCard/index.tsx for displaying food with nutrition info using MUI Card
+- [X] T056 [P] [US1] Create PantryItemCard component in frontend/src/components/PantryItemCard/index.tsx with quantity and expiration display using MUI Card
+- [X] T057 [P] [US1] Create NutritionLabelInput component in frontend/src/components/NutritionLabelInput/index.tsx with label-style form fields using MUI TextField
 
 ### Frontend - API Integration
 
-- [ ] T058 [P] [US1] Create food items API client methods in frontend/src/services/api/foodItems.ts for create, list, update, delete
-- [ ] T059 [P] [US1] Create pantry API client methods in frontend/src/services/api/pantry.ts for add, list, update, delete
+- [X] T058 [P] [US1] Create food items API client methods in frontend/src/services/api/foodItems.ts for create, list, update, delete
+- [X] T059 [P] [US1] Create pantry API client methods in frontend/src/services/api/pantry.ts for add, list, update, delete
 
 ### Frontend - Pages
 
-- [ ] T060 [US1] Implement PantryPage in frontend/src/pages/Pantry/PantryPage.tsx with MUI Grid/List of pantry items
-- [ ] T061 [US1] Implement AddFoodItemPage in frontend/src/pages/Pantry/AddFoodItemPage.tsx with NutritionLabelInput form
-- [ ] T062 [US1] Implement AddToPantryPage in frontend/src/pages/Pantry/AddToPantryPage.tsx to select food and set quantity
-- [ ] T063 [US1] Implement EditPantryItemPage in frontend/src/pages/Pantry/EditPantryItemPage.tsx to update quantity/expiration
-- [ ] T064 [US1] Add routes from PantryPage to Add/Edit pages in frontend/src/routes/AppRoutes.tsx
-- [ ] T065 [US1] Implement delete pantry item functionality with MUI confirmation dialog in PantryPage
+- [X] T060 [US1] Implement PantryPage in frontend/src/pages/Pantry/PantryPage.tsx with MUI Grid/List of pantry items
+- [X] T061 [US1] Implement AddFoodItemPage in frontend/src/pages/Pantry/AddFoodItemPage.tsx with NutritionLabelInput form
+- [X] T062 [US1] Implement AddToPantryPage in frontend/src/pages/Pantry/AddToPantryPage.tsx to select food and set quantity
+- [X] T063 [US1] Implement EditPantryItemPage in frontend/src/pages/Pantry/EditPantryItemPage.tsx to update quantity/expiration
+- [X] T064 [US1] Add routes from PantryPage to Add/Edit pages in frontend/src/routes/AppRoutes.tsx
+- [X] T065 [US1] Implement delete pantry item functionality with MUI confirmation dialog in PantryPage
 
 **Checkpoint**: User Story 1 complete - users can manage pantry inventory independently
 

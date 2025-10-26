@@ -70,7 +70,7 @@ class FoodItem(Base):
 
     # Relationships
     user = relationship("User", back_populates="food_items")
-    # pantry_items = relationship("PantryItem", back_populates="food_item", cascade="all, delete-orphan")
+    pantry_items = relationship("PantryItem", back_populates="food_item", cascade="all, delete-orphan")
     # logged_items = relationship("LoggedItem", back_populates="food_item")
     # recipe_ingredients = relationship("RecipeIngredient", back_populates="food_item")
     # planned_items = relationship("PlannedItem", back_populates="food_item")

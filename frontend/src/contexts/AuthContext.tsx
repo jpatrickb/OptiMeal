@@ -4,23 +4,21 @@
  * Provides login, logout, and registration functionality across the app.
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import apiClient from '../services/api';
 import {
   setToken,
-  removeToken,
   getToken,
   setUser,
-  removeUser,
   getUser,
   clearAuthData,
-  StoredUser,
+  type StoredUser,
 } from '../services/storage';
 
 interface AuthContextType {
   user: StoredUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, fullName?: string) => Promise<void>;
   logout: () => void;
@@ -132,7 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isAuthenticated: user !== null,
-    isLoading,
+    loading: isLoading,
     login,
     register,
     logout,

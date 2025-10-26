@@ -4,7 +4,7 @@
  * Provides centralized HTTP client with authentication interceptors.
  */
 
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import { getToken, removeToken } from './storage';
 
 // Get API base URL from environment variable or default to localhost
